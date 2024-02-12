@@ -1,4 +1,6 @@
 import { EventStoreDBClient, EventType, RecordedEvent, ResolvedEvent, StreamingRead } from '@eventstore/db-client';
+import dotenv from 'dotenv';
+dotenv.config();
 
 // The when method that is applied to each event to build the current state.
 export type ApplyEvent<Entity, E extends EventType> = (
