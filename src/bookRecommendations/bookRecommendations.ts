@@ -64,15 +64,16 @@ export interface BookRecommendation {
     createdAt: Date;
 }
 
+// Convert recommendation Id to stream name.
 export const toBookRecommendationStreamName = (recommendationId: string) => 
     `recommendation-${recommendationId}`;
 
-// Getting the state from events
-
+// Getting the state from events.
 export const getBookRecommendation = StreamAggregator<
     BookRecommendation,
     BookRecommendationEvent    
 >((currentState, event) => {
+    // Create recommendation if is first event with no current state.
     if (event.type === 'create-recommendation') {
         if(currentState != null) throw BookRecommendationErrors.CREATING_EXISTING_RECOMMENDATION;
         return {
@@ -87,6 +88,7 @@ export const getBookRecommendation = StreamAggregator<
 
     if (currentState == null) throw BookRecommendationErrors.RECOMMENDATION_NOT_FOUND;
 
+    // Run associated handler based on event.
     switch (event.type) {
         case 'view-book':
             return {
@@ -120,6 +122,7 @@ export const enum BookRecommendationErrors {
     UNKNOWN_EVENT_TYPE = 'UNKNOWN_EVENT_TYPE',
 };
 
+// Checks to see if the received event is a book recommendation event.
 export const isBookRecommendationEvent = (
     event: unknown,
 ): event is BookRecommendationEvent => {
@@ -139,12 +142,12 @@ export const isBookRecommendationEvent = (
 // Business Logic
 
 
-// Create Recommendation
 export type CreateRecommendation = {
     recommendationId: string;
     userId: string;
 }
 
+// Create Recommendation
 export const createRecommendation = ({
     recommendationId, userId
 }: CreateRecommendation): createRecommendation => {
@@ -159,18 +162,16 @@ export const createRecommendation = ({
 };
 
 
-// Add Book View
 export type AddBookView = {
     userId: string;
     book: Book;
 }
 
+// Add Book View
 export const addBookViewToRecommendation = async (
     events: StreamingRead<ResolvedEvent<BookRecommendationEvent>>,
     { userId, book }: AddBookView,
 ): Promise<viewBook> => {
-    // const recommendation = await getBookRecommendation(events);
-
     return {
         type: 'view-book',
         data: {
@@ -180,19 +181,17 @@ export const addBookViewToRecommendation = async (
     }
 }
 
-// Add Book Rating
 export type AddBookRating = {
     userId: string;
     book: Book;
     rating: number;
 }
 
+// Add Book Rating
 export const addBookRatingToRecommendation = async (
     events: StreamingRead<ResolvedEvent<BookRecommendationEvent>>,
     { userId, book, rating }: AddBookRating,
 ): Promise<rateBook> => {
-    // const recommendation = await getBookRecommendation(events);
-
     return {
         type: 'rate-book',
         data: {
@@ -203,18 +202,16 @@ export const addBookRatingToRecommendation = async (
     }
 }
 
-// Add Book Like
 export type AddBookLike = {
     userId: string;
     book: Book;
 }
 
+// Add Book Like
 export const addBookLikeToRecommendation = async (
     events: StreamingRead<ResolvedEvent<BookRecommendationEvent>>,
     { userId, book }: AddBookLike,
 ): Promise<likeBook> => {
-    // const recommendation = await getBookRecommendation(events);
-
     return {
         type: 'like-book',
         data: {
@@ -224,18 +221,16 @@ export const addBookLikeToRecommendation = async (
     }
 }
 
-// Unlike Book
 export type UnlikeBook = {
     userId: string;
     book: Book;
 }
 
+// Unlike Book
 export const UnlikeBookForRecommendation = async (
     events: StreamingRead<ResolvedEvent<BookRecommendationEvent>>,
     { userId, book }: UnlikeBook,
 ): Promise<unlikeBook> => {
-    // const recommendation = await getBookRecommendation(events);
-
     return {
         type: 'unlike-book',
         data: {

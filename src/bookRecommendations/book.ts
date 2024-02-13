@@ -3,6 +3,7 @@ export interface Book {
     categories: string[];
 }
 
+// Obtains current state and modifies view recommendations with viewed book categories. 
 export const addBookView = (
     recommendFromViews: string[], bookViewCategories: string[]) 
     : string[] => {
@@ -17,6 +18,7 @@ export const addBookView = (
         return newRecommendFromViews;
 }
 
+// Obtains current state and modifies rating recommendations with rated book categories with a rating greater than 4. 
 export const addBookRating = (
     recommendFromRatings: string[], book: Book, rating: number) 
     : string[] => {
@@ -33,6 +35,7 @@ export const addBookRating = (
         return newRecommendFromRatings;
 }
 
+// Obtains current state and modifies like recommendations with liked book categories. 
 export const addBookLike = (
     recommendFromLikes: string[], bookLikeCategories: string[])
     : string[] => {
@@ -47,6 +50,7 @@ export const addBookLike = (
         return newRecommendFromLikes;
     }
 
+// Obtains current state and modifies like recommendations with unliked book categories. 
 export const removeBookLike = (
     recommendFromLikes: string[], bookLikeCategories: string[])
     : string[] => {

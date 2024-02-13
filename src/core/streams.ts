@@ -33,6 +33,7 @@ const enum StreamAggregatorErrors {
 
 let eventStore: EventStoreDBClient;
 
+// Connects to event store
 export const getEventStore = (connectionString?: string) => {
   if (!eventStore) {
     eventStore = EventStoreDBClient.connectionString(

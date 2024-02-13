@@ -9,6 +9,7 @@ export type Checkpoint = { position: string };
 
 export type EventHandler = (event: SubscriptionResolvedEvent) => Promise<void>;
 
+// Loads current position or start and subscribes to all events except system events.
 export const SubscriptionToAll =
   (
     eventStore: EventStoreDBClient,
@@ -25,9 +26,9 @@ export const SubscriptionToAll =
       filter: excludeSystemEvents(),
     });
 
+    // Upon event notification, loop through handlers.
     finished(
       subscription.on('data', async (resolvedEvent: AllStreamResolvedEvent) => {
-        console.log("Received data on subscription");
         for (const handler of handlers) {
           await handler({ ...resolvedEvent, subscriptionId });
         }

@@ -12,6 +12,7 @@ startAPI(router);
 
 /// Run
 
+// Starts subscriptions with checkpoints and book recommendation projection.
 (async () => {
   await SubscriptionToAllWithMongoCheckpoints('sub_book_recommendations', [
     storeCheckpointInCollection(projectToBookRecommendation),

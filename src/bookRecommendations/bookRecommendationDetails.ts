@@ -14,9 +14,11 @@ type BookRecommendationDetails = Readonly<{
 
 }>;
 
+// Gets Book Recommendations Collection
 export const getBookRecommendationCollection = () =>
     getMongoCollection<BookRecommendationDetails>('bookRecommendationDetails');
 
+// Defines Book Recommendation Projection which obtains a book recommendation event and revision and runs the associated Projection function.
 export const projectToBookRecommendation = (
         resolvedEvent: SubscriptionResolvedEvent,
     ): Promise<void> => {
@@ -43,6 +45,8 @@ export const projectToBookRecommendation = (
         }
 };
 
+
+// Handles Creating a Recommendation from create-recommendation event. 
 export const projectCreateRecommendation = async (
     event: createRecommendation,
     streamRevision: number,
@@ -61,6 +65,7 @@ export const projectCreateRecommendation = async (
     });
 };
 
+// Handles altering recommended books and revisions based on book views from view-book event.
 export const projectViewBook = async (
     event: viewBook,
     streamRevision: number,
@@ -68,7 +73,6 @@ export const projectViewBook = async (
     const bookRecommendations = await getBookRecommendationCollection();
     const lastRevision = streamRevision - 1;
 
-    // If this doesn't work, remember viewBook only has userId and so search by userId. A user should only have one recommendation stream so should be okay.
     const { recommendFromViews, revision } = await retryIfNotFound(() =>
         bookRecommendations.findOne(
             {
@@ -102,6 +106,7 @@ export const projectViewBook = async (
     );
 };
 
+// Handles altering recommended books and revisions based on book likes from like-book event.
 export const projectLikeBook = async (
     event: likeBook,
     streamRevision: number,
@@ -142,6 +147,7 @@ export const projectLikeBook = async (
     );
 };
 
+// Handles altering recommended books and revisions based on book ratings from rate-book event.
 export const projectRateBook = async (
     event: rateBook,
     streamRevision: number,
@@ -182,6 +188,7 @@ export const projectRateBook = async (
     );
 };
 
+// Handles altering recommended books and revisions based on book unlikes from unlike-book event.
 export const projectUnlikeBook = async (
     event: unlikeBook,
     streamRevision: number,

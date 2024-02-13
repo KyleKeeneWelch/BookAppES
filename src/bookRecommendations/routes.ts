@@ -20,11 +20,13 @@ export const router = Router();
 router.post('/users/:userId/book-recommendation/', passport.authenticate("jwt", { session: false }), 
   async (request: Request, response: Response, next: NextFunction) => {
     try {
+        // Shouldn't be an existing user yet. Just check if user has been passed by JWT.
         if (!request.user) throw "NO DATA FROM JWT";
 
         const recommendationId = uuid();
         const streamName = toBookRecommendationStreamName(recommendationId);
 
+        // Run create command with event store and handler.
         const result = await create(getEventStore(), createRecommendation)(
             streamName,
             {
@@ -33,7 +35,9 @@ router.post('/users/:userId/book-recommendation/', passport.authenticate("jwt", 
             },
         );
 
+        // Set ETag which provides information on caching and revisions.
         response.set('ETag', toWeakETag(result.nextExpectedRevision));
+        // Send response with created ID.
         sendCreated(response, recommendationId);
     } catch (error) {
         next(error);
@@ -41,7 +45,6 @@ router.post('/users/:userId/book-recommendation/', passport.authenticate("jwt", 
   }
 )
 
-// Add Book View
 
 type AddBookViewRequest = Request<
   Partial<{ recommendationId: string; userId: string }>,
@@ -49,6 +52,7 @@ type AddBookViewRequest = Request<
   { isbn: number; categories: string[] }
 >;
 
+// Add Book View
 router.post('/users/:userId/book-recommendation/:recommendationId/view-book', passport.authenticate("jwt", { session: false }), 
   async (
     request: AddBookViewRequest,
@@ -56,6 +60,7 @@ router.post('/users/:userId/book-recommendation/:recommendationId/view-book', pa
     next: NextFunction,
   ) => {
     try {
+      // If user obtained by JWT has a book recommendation.
       if (request.user) {
         const bookRecommendations = await getBookRecommendationCollection();
         const user = await bookRecommendations.findOne({ userId: request.user.id });
@@ -92,7 +97,6 @@ router.post('/users/:userId/book-recommendation/:recommendationId/view-book', pa
   }
 );
 
-// Add Book Rating
 
 type AddBookRatingRequest = Request<
   Partial<{ recommendationId: string; userId: string }>,
@@ -100,6 +104,7 @@ type AddBookRatingRequest = Request<
   { isbn: number; categories: string[], rating: number }
 >;
 
+// Add Book Rating
 router.post('/users/:userId/book-recommendation/:recommendationId/rate-book', passport.authenticate("jwt", { session: false }), 
   async (
     request: AddBookRatingRequest,
@@ -144,7 +149,6 @@ router.post('/users/:userId/book-recommendation/:recommendationId/rate-book', pa
   }
 );
 
-// Add Book Like
 
 type AddBookLikeRequest = Request<
   Partial<{ recommendationId: string; userId: string }>,
@@ -152,6 +156,7 @@ type AddBookLikeRequest = Request<
   { isbn: number; categories: string[] }
 >;
 
+// Add Book Like
 router.post('/users/:userId/book-recommendation/:recommendationId/like-book', passport.authenticate("jwt", { session: false }), 
   async (
     request: AddBookLikeRequest,
@@ -195,7 +200,6 @@ router.post('/users/:userId/book-recommendation/:recommendationId/like-book', pa
   }
 );
 
-// Unlike Book
 
 type UnlikeBookRequest = Request<
   Partial<{ recommendationId: string; userId: string }>,
@@ -203,6 +207,7 @@ type UnlikeBookRequest = Request<
   { isbn: number; categories: string[] }
 >;
 
+// Unlike Book
 router.post('/users/:userId/book-recommendation/:recommendationId/unlike-book', passport.authenticate("jwt", { session: false }), 
   async (
     request: UnlikeBookRequest,

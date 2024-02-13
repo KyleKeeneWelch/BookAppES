@@ -24,6 +24,7 @@ export const startAPI = (router: Router) => {
   );
   app.use(passport.initialize());
 
+  // Set up JWT authentication. Use same secret as Back-end of application.
   passport.use("jwt", new JwtStrategy(
     {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -33,7 +34,6 @@ export const startAPI = (router: Router) => {
     (req, data, done) => {
       if (!data) {
         throw "INVALID TOKEN";
-        // return done(null, null, { message: "Invalid token" });
       }
 
       req.user = data.data;
@@ -43,6 +43,7 @@ export const startAPI = (router: Router) => {
 
   app.use("/", cors(), router);
 
+  // Create Server
   const server = http.createServer(app);
 
   server.listen(5000);
